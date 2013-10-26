@@ -28,10 +28,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="Activity2"
+            android:name="DrawActivity2"
             android:label="@string/title_activity_activity2" >
         </activity>
-        <activity android:name="Activity1"></activity>
+        <activity android:name="DrawActivity1"></activity>
+        <activity android:name="TakePicturesActivity"></activity>
 
     </application>
 
