@@ -7,14 +7,31 @@
 
     <ImageView
         android:id="@+id/image_saved"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_width="200dp"
+        android:layout_height="200dp" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textView2"
+        android:textSize="20dip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Is this okay?" />
+        android:text="Is this ok?" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/yesButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yes" />
+
+        <Button
+            android:id="@+id/noButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No" />
+    </LinearLayout>
 
 </LinearLayout>
