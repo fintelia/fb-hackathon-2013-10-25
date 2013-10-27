@@ -32,21 +32,8 @@ public class DrawActivity2 extends Activity {
 		final Button button = (Button) findViewById(R.id.yesButton);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	File mediaStorageDir = new File(
-        				Environment
-        						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-        				"PhotoFabricator");
-        	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-
-        		String filename = mediaStorageDir.getPath() + File.separator
-        				+ "DRAW_" + timeStamp + ".jpg";
-
-        		try {
-        			FileOutputStream out = new FileOutputStream(filename);
-        			bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
-        		} catch (FileNotFoundException e) { }
-        		
-        		FileUploader.uploadFile(filename);
+            	
+            	Utilities.uploadBitmap("DRAW_", bmp);
         		
         		Toast.makeText(DrawActivity2.this, "File Upload Was Successful!", Toast.LENGTH_LONG).show();
         		
