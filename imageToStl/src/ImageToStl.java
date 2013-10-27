@@ -1,5 +1,6 @@
-package imageToStl;
 
+
+import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import java.io.*;
 
@@ -7,6 +8,11 @@ import javax.imageio.ImageIO;
 
 public class ImageToStl {
 
+	static double minThickness = 1.0;
+	static double maxThickness = 3.0;
+	static double xyScale = 10.0;
+	static double fallOffRadius = 4.0; //max of 16
+	
 	static int min(int i1, int i2) {
 		return i1 < i2 ? i1 : i2;
 	}
@@ -37,14 +43,13 @@ public class ImageToStl {
 					}
 				}
 
-				double strength = 0.5 + 0.5 * Math.cos(Math.PI / 16.0 * Math.min(Math.sqrt(minDistanceSquared), 16.0));
+				double strength = 0.5 + 0.5 * Math.cos(Math.PI / fallOffRadius * Math.min(Math.sqrt(minDistanceSquared), fallOffRadius));
 				int iStrength = (int) (255 * strength);
 				newImage.setRGB(x, y, iStrength << 16 | iStrength << 8 | iStrength);
 			}
 		}
 
 		return newImage;
-
 	}
 
 	/**
@@ -65,6 +70,15 @@ public class ImageToStl {
 		return newImage;
 	}
 
+	
+	public static BufferedImage mirrorImage(BufferedImage img){
+	    AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+	    tx.translate(-img.getWidth(null), 0);
+	    AffineTransformOp op = new AffineTransformOp(tx,
+	        AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+	    return op.filter(img, null);
+	}
+	
 	/**
 	 * 
 	 * @param img
@@ -98,24 +112,17 @@ public class ImageToStl {
 
 	}
 
-	/**
-	 * 
-	 * file format:
-	 * 
-	 * solid name facet normal ni nj nk outer loop vertex v1x v1y v1z vertex v2x v2y v2z vertex v3x v3y v3z endloop endfacet endsolid name
-	 * 
-	 * @param img
-	 * @return
-	 * @throws IOException
-	 * 
-	 */
+
+
+	static double getThickness(BufferedImage img, int x, int y) {
+		int h = (img.getRGB(min(x, img.getWidth()-1) , min(y, img.getHeight() - 1)) & 0xff);
+		return Math.min((h / 255.0 * (maxThickness - minThickness)) * 1.05, maxThickness - minThickness) + minThickness;
+	}
+
 	public static void writeStl(BufferedImage img, String filename) throws IOException {
 
 		int width = img.getWidth();
 		int height = img.getHeight();
-
-		final double maxThickness = 3.0;
-		final double xyScale = 10.0 / 64.0;
 
 		Writer out = new BufferedWriter(new FileWriter(filename));
 
@@ -124,21 +131,21 @@ public class ImageToStl {
 		out.write("facet normal 0.0 0.0 -1.0 \n");
 		out.write("outer loop\n");
 		out.write("vertex 0.0 0.0 0.0 \n");
-		out.write("vertex " + xyScale * width + " 0.0 0.0 \n");
-		out.write("vertex " + xyScale * width + " " + xyScale * height + " 0.0 \n");
+		out.write("vertex " + xyScale * (width-1) + " 0.0 0.0 \n");
+		out.write("vertex " + xyScale * (width-1) + " " + xyScale * (height-1) + " 0.0 \n");
 		out.write("endloop\n");
 		out.write("endfacet\n");
 
 		out.write("facet normal 0.0 0.0 -1.0 \n");
 		out.write("outer loop\n");
 		out.write("vertex 0.0 0.0 0.0 \n");
-		out.write("vertex 0.0 " + xyScale * height + " 0.0 \n");
-		out.write("vertex " + xyScale * width + " " + xyScale * height + " 0.0 \n");
+		out.write("vertex " + xyScale * (width-1) + " " + xyScale * (height-1) + " 0.0 \n");
+		out.write("vertex 0.0 " + xyScale * (height-1) + " 0.0 \n");
 		out.write("endloop\n");
 		out.write("endfacet\n");
 
 		for (int x = 0; x < width - 1; x++) {
-			for (int y = 0; y <= height; y += height) {
+			for (int y = 0; y < height; y += height-1) {
 				if (y == 0)
 					out.write("facet normal 0.0 -1.0 0.0 \n");
 				else
@@ -146,8 +153,8 @@ public class ImageToStl {
 
 				out.write("outer loop\n");
 				out.write("vertex " + xyScale * x + " " + xyScale * y + " 0.0 \n");
-				out.write("vertex " + xyScale * x + " " + xyScale * y + " " + ((img.getRGB(x, min(y,height-1)) & 0xff) / 255.0 * maxThickness) + " \n");
-				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * y + " " + ((img.getRGB(x + 1, min(y,height-1)) & 0xff) / 255.0 * maxThickness) + " \n");
+				out.write("vertex " + xyScale * x + " " + xyScale * y + " " + getThickness(img, x, y) + " \n");
+				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * y + " " + getThickness(img, x + 1, y) + " \n");
 				out.write("endloop\n");
 				out.write("endfacet\n");
 
@@ -157,15 +164,15 @@ public class ImageToStl {
 					out.write("facet normal 0.0 1.0 0.0 \n");
 				out.write("outer loop\n");
 				out.write("vertex " + xyScale * x + " " + xyScale * y + " 0.0 \n");
+				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * y + " " + getThickness(img, x+1, y) + " \n");
 				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * y + " 0.0 \n");
-				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * y + " " + ((img.getRGB(x + 1, min(y,height-1)) & 0xff) / 255.0 * maxThickness) + " \n");
 				out.write("endloop\n");
 				out.write("endfacet\n");
 			}
 		}
 		out.flush();
 		for (int y = 0; y < height - 1; y++) {
-			for (int x = 0; x <= width; x += width) {
+			for (int x = 0; x < width; x += width-1) {
 				if (x == 0)
 					out.write("facet normal -1.0 0.0 0.0 \n");
 				else
@@ -173,8 +180,8 @@ public class ImageToStl {
 
 				out.write("outer loop\n");
 				out.write("vertex " + xyScale * x + " " + xyScale * y + " 0.0 \n");
-				out.write("vertex " + xyScale * x + " " + xyScale * y + " " + ((img.getRGB(min(x,width-1), y) & 0xff) / 255.0 * maxThickness) + " \n");
-				out.write("vertex " + xyScale * x + " " + xyScale * (y + 1) + " " + ((img.getRGB(min(x,width-1), y + 1) & 0xff) / 255.0 * maxThickness) + " \n");
+				out.write("vertex " + xyScale * x + " " + xyScale * y + " " + getThickness(img, x, y) + " \n");
+				out.write("vertex " + xyScale * x + " " + xyScale * (y + 1) + " " + getThickness(img, x, y+1) + " \n");
 				out.write("endloop\n");
 				out.write("endfacet\n");
 
@@ -184,8 +191,8 @@ public class ImageToStl {
 					out.write("facet normal 0.0 1.0 0.0 \n");
 				out.write("outer loop\n");
 				out.write("vertex " + xyScale * x + " " + xyScale * y + " 0.0 \n");
+				out.write("vertex " + xyScale * x + " " + xyScale * (y + 1) + " " + getThickness(img, x, y+1) +" \n");
 				out.write("vertex " + xyScale * x + " " + xyScale * (y + 1) + " 0.0 \n");
-				out.write("vertex " + xyScale * x + " " + xyScale * (y + 1) + " " + ((img.getRGB(min(x,width-1), y + 1) & 0xff) / 255.0 * maxThickness) + " \n");
 				out.write("endloop\n");
 				out.write("endfacet\n");
 			}
@@ -196,15 +203,15 @@ public class ImageToStl {
 
 				//
 				// A ----- B *------x
-				// | \ 1 | |
-				// | \ | |
-				// | 2 \ | |
+				// | \  1  | |
+				// |   \   | |
+				// |  2  \ | |
 				// C ----- D y
 
-				double A = (img.getRGB(x, y) & 0xff) / 255.0 * maxThickness;
-				double B = (img.getRGB(x + 1, y) & 0xff) / 255.0 * maxThickness;
-				double C = (img.getRGB(x, y + 1) & 0xff) / 255.0 * maxThickness;
-				double D = (img.getRGB(x + 1, y + 1) & 0xff) / 255.0 * maxThickness;
+				double A = getThickness(img, x, y);
+				double B = getThickness(img, x+1, y);
+				double C = getThickness(img, x, y+1);
+				double D = getThickness(img, x+1, y+1);
 
 				Vector3d normal1 = getNormal(img, x, y).add(getNormal(img, x + 1, y)).add(getNormal(img, x + 1, y + 1)).normal();
 				Vector3d normal2 = getNormal(img, x, y).add(getNormal(img, x, y + 1)).add(getNormal(img, x + 1, y + 1)).normal();
@@ -212,8 +219,8 @@ public class ImageToStl {
 				out.write("facet normal " + normal1 + "\n");
 				out.write("outer loop\n");
 				out.write("vertex " + xyScale * x + " " + xyScale * y + " " + A + " \n");
-				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * y + " " + B + " \n");
 				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * (y + 1) + " " + D + " \n");
+				out.write("vertex " + xyScale * (x + 1) + " " + xyScale * y + " " + B + " \n");
 				out.write("endloop\n");
 				out.write("endfacet\n");
 
@@ -237,11 +244,15 @@ public class ImageToStl {
 	public static void main(String[] Args) throws IOException {
 		BufferedImage img = null;
 
+		
+		
 		img = ImageIO.read(new File(Args[0]));
+		img = mirrorImage(img);
 		// img = scaleImage(img, 32, 32);
 		img = distanceMap(img);
 
-		ImageIO.write(img, "jpg", new File("C:/map.jpg"));
-		writeStl(img, "c:/model.stl");
+		// ImageIO.write(img, "jpg", new File("C:/map.jpg"));
+		writeStl(img, Args[1]);
+		System.out.println("success.");
 	}
 }

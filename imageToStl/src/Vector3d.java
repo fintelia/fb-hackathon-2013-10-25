@@ -1,4 +1,4 @@
-package imageToStl;
+
 
 public class Vector3d {
 	public double x, y, z;
