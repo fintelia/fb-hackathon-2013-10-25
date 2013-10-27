@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/image"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -15,7 +16,9 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp"
-        android:text="Which method of 3D model generation do you want to use?" />
+        android:text="Which method of 3D model generation do you want to use?"
+        android:textSize="20dip"
+        android:gravity="center" />
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -30,24 +33,25 @@
         android:id="@+id/takePicturesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/linearLayout1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
         android:text="Take Picture" />
 
     <Button
         android:id="@+id/drawPictureButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/takePicturesButton"
+        android:layout_centerHorizontal="true"
         android:text="Draw Picture" />
 
     <Button
         android:id="@+id/galleryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/drawPictureButton"
+        android:layout_centerHorizontal="true"
         android:text="Get Image from Gallery" />
 
 </RelativeLayout>
