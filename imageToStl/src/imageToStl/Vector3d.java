@@ -9,12 +9,13 @@ public class Vector3d {
 		this.z = z;
 	}
 
-	public void normalize() {
+	public Vector3d add(Vector3d other){
+		return new Vector3d(x+other.x, y+other.y, z+other.z);
+	}
+	
+	public Vector3d normal() {
 		double length = Math.sqrt(x * x + y * y + z * z);
-
-		x /= length;
-		y /= length;
-		z /= length;
+		return new Vector3d(x / length, y / length, z / length);
 	}
 
 	public String toString() {
