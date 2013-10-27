@@ -16,22 +16,28 @@ import org.jibble.simpleftp.SimpleFTP;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.os.StrictMode;
+import android.util.Log;
 import android.widget.Toast;
 
 public class Utilities {
 
-	private static final String FTP_SERVER = "192.168.1.73";
+	private static final String FTP_SERVER = "192.168.1.75";
 	private static final String FTP_USERNAME = "anonymous";
 	private static final String FTP_PASSWORD = "";
 
 	
 	public static void uploadViaHTTP(String path) {
+		
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.setThreadPolicy(policy); 
+		
 		HttpURLConnection connection = null;
 		DataOutputStream outputStream = null;
 		DataInputStream inputStream = null;
 
 		String pathToOurFile = path;
-		String urlServer = "http://192.168.1.73/";
+		String urlServer = "http://192.168.1.75/upload.php";
 		String lineEnd = "\r\n";
 		String twoHyphens = "--";
 		String boundary =  "*****";
@@ -84,6 +90,8 @@ public class Utilities {
 		// Responses from the server (code and message)
 		int serverResponseCode = connection.getResponseCode();
 		String serverResponseMessage = connection.getResponseMessage();
+		
+		Log.w("Server response", ((Integer) serverResponseCode).toString() + " " + serverResponseMessage);
 
 		fileInputStream.close();
 		outputStream.flush();

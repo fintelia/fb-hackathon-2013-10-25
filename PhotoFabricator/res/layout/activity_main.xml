@@ -8,22 +8,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Main" >
 
-    <Button
-        android:id="@+id/takePicturesButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/drawPictureButton"
-        android:layout_below="@+id/textView1"
-        android:text="Take Pictures" />
-
-    <Button
-        android:id="@+id/drawPictureButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView1"
-        android:layout_below="@+id/takePicturesButton"
-        android:text="Draw Picture" />
-
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
@@ -34,11 +18,36 @@
         android:text="Which method of 3D model generation do you want to use?" />
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView1"
         android:layout_toRightOf="@+id/drawPictureButton"
         android:orientation="vertical" >
     </LinearLayout>
+
+    <Button
+        android:id="@+id/takePicturesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView1"
+        android:layout_below="@+id/linearLayout1"
+        android:text="Take Picture" />
+
+    <Button
+        android:id="@+id/drawPictureButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView1"
+        android:layout_below="@+id/takePicturesButton"
+        android:text="Draw Picture" />
+
+    <Button
+        android:id="@+id/galleryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView1"
+        android:layout_below="@+id/drawPictureButton"
+        android:text="Get Image from Gallery" />
 
 </RelativeLayout>
